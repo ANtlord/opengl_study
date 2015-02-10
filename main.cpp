@@ -8,19 +8,24 @@
 void RenderScene()
 {
     GLfloat x,y,z,angle;
-    GLfloat xRot = 45.0, yRot = 45.0;
+    GLfloat xRot = 0.0, yRot = 0.0;
+
+
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();
     glRotatef(xRot, 1., 0., 0.);
     glRotatef(yRot, 0., 1., 0.);
-    glBegin(GL_POINTS);
+    z = 0.;
+    glBegin(GL_LINES);
     {
-        z = -50.;
-        for (angle = 0.; angle <= (2. * GL_PI) * 3.; angle += 0.1f) {
+        for (angle = 0.; angle <= GL_PI; angle += (GL_PI/20.0f)) {
             x = 50.f * sin(angle);
             y = 50.f * cos(angle);
             glVertex3f(x,y,z);
-            z += 0.5;
+
+            x = 50.f * sin(angle+GL_PI);
+            y = 50.f * cos(angle+GL_PI);
+            glVertex3f(x,y,z);
         }
     }
     glEnd();
@@ -40,16 +45,18 @@ void ChangeSize(GLsizei width, GLsizei height)
     glLoadIdentity();              // Сброс матрицы проекции
     // Вычисление соотношения геометрических размеров для окна
     //gluPerspective( 45.0f, ASPECT_RATIO, 0.1f, 100.0f );
+    //
+    const GLfloat BORDER = 100.;
 
     if (width <= height) {
-        glOrtho(-100. /* left */, 100. /* right */,
-                -100 / ASPECT_RATIO /* bottom */, 100 / ASPECT_RATIO /* top */,
-                -100. /* near */, 100./* far */);
+        glOrtho(-BORDER /* left */, BORDER /* right */,
+                -BORDER / ASPECT_RATIO /* bottom */, BORDER / ASPECT_RATIO /* top */,
+                -BORDER /* near */, BORDER /* far */);
     }
     else {
-        glOrtho(-100 * ASPECT_RATIO /* left */, 100 * ASPECT_RATIO /* right */,
-                -100. /* back */, 100. /* front */,
-                -100. /* near */, 100./* far */);
+        glOrtho(-BORDER * ASPECT_RATIO /* left */, BORDER * ASPECT_RATIO /* right */,
+                -BORDER /* back */, BORDER /* front */,
+                -BORDER /* near */, BORDER/* far */);
     }
 
     glMatrixMode( GL_MODELVIEW );   // Выбор матрицы вида модели
