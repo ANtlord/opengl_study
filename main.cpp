@@ -8,24 +8,25 @@
 void RenderScene()
 {
     GLfloat x,y,z,angle;
-    GLfloat xRot = 0.0, yRot = 0.0;
+    GLfloat xRot = 45.0, yRot = 45.0;
 
 
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();
     glRotatef(xRot, 1., 0., 0.);
     glRotatef(yRot, 0., 1., 0.);
-    z = 0.;
-    glBegin(GL_LINES);
+    z = -50.;
+    glEnable(GL_LINE_STIPPLE);
+    GLint factor = 1;
+    GLushort pattern = 0x11ff;  // OpenGL superbook p. 130.
+    glLineStipple(factor, pattern);
+    glBegin(GL_LINE_STRIP);
     {
-        for (angle = 0.; angle <= GL_PI; angle += (GL_PI/20.0f)) {
+        for (angle = 0.; angle <= (2.f*GL_PI)*3.f; angle += 0.1) {
             x = 50.f * sin(angle);
             y = 50.f * cos(angle);
             glVertex3f(x,y,z);
-
-            x = 50.f * sin(angle+GL_PI);
-            y = 50.f * cos(angle+GL_PI);
-            glVertex3f(x,y,z);
+            z+=0.5;
         }
     }
     glEnd();
