@@ -1,0 +1,3 @@
+bCull 1
+bDepth 1
+bOutline 0
