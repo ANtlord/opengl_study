@@ -13,80 +13,67 @@ bool bCull = (options["bCull"] == "1");
 bool bDepth = (options["bDepth"] == "1");
 bool bOutline = (options["bOutline"] == "1");
 GLfloat xRot = 45.0, yRot = 45.0;
+GLubyte fire[128] = { 0x00, 0x00, 0x00, 0x00, 
+				   0x00, 0x00, 0x00, 0x00,
+				   0x00, 0x00, 0x00, 0x00,
+				   0x00, 0x00, 0x00, 0x00,
+				   0x00, 0x00, 0x00, 0x00,
+				   0x00, 0x00, 0x00, 0x00,
+				   0x00, 0x00, 0x00, 0xc0,
+				   0x00, 0x00, 0x01, 0xf0,
+				   0x00, 0x00, 0x07, 0xf0,
+				   0x0f, 0x00, 0x1f, 0xe0,
+				   0x1f, 0x80, 0x1f, 0xc0,
+				   0x0f, 0xc0, 0x3f, 0x80,	
+				   0x07, 0xe0, 0x7e, 0x00,
+				   0x03, 0xf0, 0xff, 0x80,
+				   0x03, 0xf5, 0xff, 0xe0,
+				   0x07, 0xfd, 0xff, 0xf8,
+				   0x1f, 0xfc, 0xff, 0xe8,
+				   0xff, 0xe3, 0xbf, 0x70, 
+				   0xde, 0x80, 0xb7, 0x00,
+				   0x71, 0x10, 0x4a, 0x80,
+				   0x03, 0x10, 0x4e, 0x40,
+				   0x02, 0x88, 0x8c, 0x20,
+				   0x05, 0x05, 0x04, 0x40,
+				   0x02, 0x82, 0x14, 0x40,
+				   0x02, 0x40, 0x10, 0x80, 
+				   0x02, 0x64, 0x1a, 0x80,
+				   0x00, 0x92, 0x29, 0x00,
+				   0x00, 0xb0, 0x48, 0x00,
+				   0x00, 0xc8, 0x90, 0x00,
+				   0x00, 0x85, 0x10, 0x00,
+				   0x00, 0x03, 0x00, 0x00,
+				   0x00, 0x00, 0x10, 0x00 };
 
 void RenderScene()
 {
-    GLfloat x,y,z,angle;
-    //GLfloat xRot = 0.0, yRot = 0.0;
-    int iPivot = 1;
+	// Clear the window
+	glClear(GL_COLOR_BUFFER_BIT);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (bCull)
-        glEnable(GL_CULL_FACE);
-    else
-        glDisable(GL_CULL_FACE);
+	// Save matrix state and do the rotation
+	glPushMatrix();
+	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yRot, 0.0f, 1.0f, 0.0f);
 
-    if (bDepth) {
-        glEnable(GL_DEPTH_TEST);
-    }
-    else {
-        glDisable(GL_DEPTH_TEST);
-    }
+	// Begin the stop sign shape,
+	// use a standard polygon for simplicity
+	glBegin(GL_POLYGON);
+		glVertex2f(-20.0f, 50.0f);
+		glVertex2f(20.0f, 50.0f);
+		glVertex2f(50.0f, 20.0f);
+		glVertex2f(50.0f, -20.0f);
+		glVertex2f(20.0f, -50.0f);
+		glVertex2f(-20.0f, -50.0f);
+		glVertex2f(-50.0f, -20.0f);
+		glVertex2f(-50.0f, 20.0f);
+	glEnd();
 
-    if (bOutline)
-        glPolygonMode(GL_BACK, GL_LINE);
-    else
-        glPolygonMode(GL_BACK, GL_FILL);
+	// Restore transformations
+	glPopMatrix();
 
-    glPushMatrix();
-    glRotatef(xRot, 1., 0., 0.);
-    glRotatef(yRot, 0., 1., 0.);
-
-    //z = -50.;
-    //glEnable(GL_LINE_STIPPLE);
-    //GLint factor = 1;
-    //GLushort pattern = 0x11ff;  // OpenGL superbook p. 130.
-    //glLineStipple(factor, pattern);
-    glBegin(GL_TRIANGLE_FAN);
-    {
-        glVertex3f(0.f,0.f,75.f);
-        for (angle = 0.; angle <= (2.f*GL_PI); angle += (GL_PI/8.f)) {
-            x = 50.f * sin(angle);
-            y = 50.f * cos(angle);
-
-            if (iPivot % 2 == 0) {
-                glColor3f(0.f, 1.f, 0.f);
-            }
-            else{
-                glColor3f(1.f, 0.f, 0.f);
-            }
-            ++iPivot;
-            glVertex3f(x,y,0.f);
-        }
-    }
-    glEnd();
-
-    glBegin(GL_TRIANGLE_FAN);
-    {
-        glVertex3f(0.f,0.f,0.f);
-        for (angle = 0.; angle <= (2.f*GL_PI); angle += (GL_PI/8.f)) {
-            x = 50.f * sin(angle);
-            y = 50.f * cos(angle);
-
-            if (iPivot % 2 == 0) {
-                glColor3f(0.f, 1.f, 0.f);
-            }
-            else{
-                glColor3f(1.f, 0.f, 0.f);
-            }
-            ++iPivot;
-            glVertex3f(x,y,0.f);
-        }
-    }
-    glEnd();
-
-    glPopMatrix();
-    glutSwapBuffers();
+	// Flush drawing commands
+	glutSwapBuffers();
 }
 
 void keyDown(unsigned char key, int x, int y)
@@ -146,13 +133,17 @@ void ChangeSize(GLsizei width, GLsizei height)
 
 void SetupRC()
 {
-    glClearColor(0., 0., 0., 1.);
-    glColor3f(0., 1., 0.);
-    glShadeModel( GL_FLAT );
-    //glClearDepth( 1.0f );              // Разрешить очистку буфера глубины
-    //glEnable( GL_DEPTH_TEST );            // Разрешить тест глубины
-    //glDepthFunc( GL_LEQUAL );            // Тип теста глубины
-    glFrontFace(GL_CW);
+	// Black background
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+
+	// Set drawing color to red
+	glColor3f(1.0f, 0.0f, 0.0f);
+	
+	// Enable polygon stippling
+	glEnable(GL_POLYGON_STIPPLE);
+	
+	// Specify a specific stipple pattern
+	glPolygonStipple(fire);
 }
 
 int main(int argc, char *argv[])
