@@ -9,64 +9,75 @@
 
 OptionReader * OptionReader::_self = nullptr;
 auto options = OptionReader::getSingleton()->getOptions();
-bool bCull = (options["bCull"] == "1");
-bool bDepth = (options["bDepth"] == "1");
-bool bOutline = (options["bOutline"] == "1");
+//bool bCull = (options["bCull"] == "1");
+//bool bDepth = (options["bDepth"] == "1");
+//bool bOutline = (options["bOutline"] == "1");
 GLfloat xRot = 45.0, yRot = 45.0;
-GLubyte fire[128] = { 0x00, 0x00, 0x00, 0x00, 
-				   0x00, 0x00, 0x00, 0x00,
-				   0x00, 0x00, 0x00, 0x00,
-				   0x00, 0x00, 0x00, 0x00,
-				   0x00, 0x00, 0x00, 0x00,
-				   0x00, 0x00, 0x00, 0x00,
-				   0x00, 0x00, 0x00, 0xc0,
-				   0x00, 0x00, 0x01, 0xf0,
-				   0x00, 0x00, 0x07, 0xf0,
-				   0x0f, 0x00, 0x1f, 0xe0,
-				   0x1f, 0x80, 0x1f, 0xc0,
-				   0x0f, 0xc0, 0x3f, 0x80,	
-				   0x07, 0xe0, 0x7e, 0x00,
-				   0x03, 0xf0, 0xff, 0x80,
-				   0x03, 0xf5, 0xff, 0xe0,
-				   0x07, 0xfd, 0xff, 0xf8,
-				   0x1f, 0xfc, 0xff, 0xe8,
-				   0xff, 0xe3, 0xbf, 0x70, 
-				   0xde, 0x80, 0xb7, 0x00,
-				   0x71, 0x10, 0x4a, 0x80,
-				   0x03, 0x10, 0x4e, 0x40,
-				   0x02, 0x88, 0x8c, 0x20,
-				   0x05, 0x05, 0x04, 0x40,
-				   0x02, 0x82, 0x14, 0x40,
-				   0x02, 0x40, 0x10, 0x80, 
-				   0x02, 0x64, 0x1a, 0x80,
-				   0x00, 0x92, 0x29, 0x00,
-				   0x00, 0xb0, 0x48, 0x00,
-				   0x00, 0xc8, 0x90, 0x00,
-				   0x00, 0x85, 0x10, 0x00,
-				   0x00, 0x03, 0x00, 0x00,
-				   0x00, 0x00, 0x10, 0x00 };
 
+auto iMode = (options["iMode"]);
+GLboolean bEdgeFlag = GL_TRUE;
 void RenderScene()
 {
 	// Clear the window
 	glClear(GL_COLOR_BUFFER_BIT);
+
+
+	// Draw back side as a polygon only, if flag is set
+	if(iMode == "1")
+		glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+
+	if(iMode == "2")
+		glPolygonMode(GL_FRONT_AND_BACK,GL_POINT);
+
+	if(iMode == "3")
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+
 
 	// Save matrix state and do the rotation
 	glPushMatrix();
 	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
 	glRotatef(yRot, 0.0f, 1.0f, 0.0f);
 
-	// Begin the stop sign shape,
-	// use a standard polygon for simplicity
-	glBegin(GL_POLYGON);
-		glVertex2f(-20.0f, 50.0f);
-		glVertex2f(20.0f, 50.0f);
-		glVertex2f(50.0f, 20.0f);
-		glVertex2f(50.0f, -20.0f);
-		glVertex2f(20.0f, -50.0f);
-		glVertex2f(-20.0f, -50.0f);
-		glVertex2f(-50.0f, -20.0f);
-		glVertex2f(-50.0f, 20.0f);
+
+	// Begin the triangles
+	glBegin(GL_TRIANGLES);
+
+		glEdgeFlag(bEdgeFlag);
+		glVertex2f(-20.0f, 0.0f);
+		glEdgeFlag(GL_TRUE);
+		glVertex2f(20.0f, 0.0f);
+		glVertex2f(0.0f, 40.0f);
+
+		glVertex2f(-20.0f,0.0f);
+		glVertex2f(-60.0f,-20.0f);
+		glEdgeFlag(bEdgeFlag);
+		glVertex2f(-20.0f,-40.0f);
+		glEdgeFlag(GL_TRUE);
+
+		glVertex2f(-20.0f,-40.0f);
+		glVertex2f(0.0f, -80.0f);
+		glEdgeFlag(bEdgeFlag);
+		glVertex2f(20.0f, -40.0f);
+		glEdgeFlag(GL_TRUE);
+
+		glVertex2f(20.0f, -40.0f);
+		glVertex2f(60.0f, -20.0f);
+		glEdgeFlag(bEdgeFlag);
+		glVertex2f(20.0f, 0.0f);
+		glEdgeFlag(GL_TRUE);
+
+		// Center square as two triangles
+		glEdgeFlag(bEdgeFlag);
+		glVertex2f(-20.0f, 0.0f);
+		glVertex2f(-20.0f,-40.0f);
+		glVertex2f(20.0f, 0.0f);
+
+		glVertex2f(-20.0f,-40.0f);
+		glVertex2f(20.0f, -40.0f);
+		glVertex2f(20.0f, 0.0f);
+		glEdgeFlag(GL_TRUE);
+
+	// Done drawing Triangles
 	glEnd();
 
 	// Restore transformations
@@ -136,23 +147,12 @@ void SetupRC()
 	// Black background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
 
-	// Set drawing color to red
-	glColor3f(1.0f, 0.0f, 0.0f);
-	
-	// Enable polygon stippling
-	glEnable(GL_POLYGON_STIPPLE);
-	
-	// Specify a specific stipple pattern
-	glPolygonStipple(fire);
+	// Set drawing color to green
+	glColor3f(0.0f, 1.0f, 0.0f);
 }
 
 int main(int argc, char *argv[])
 {
-    std::cout <<
-        bCull << std::endl <<
-        bDepth << std::endl <<
-        bOutline << std::endl;
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutCreateWindow("Sample");
